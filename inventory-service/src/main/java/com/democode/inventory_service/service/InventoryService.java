@@ -3,6 +3,7 @@ package com.democode.inventory_service.service;
 import com.democode.inventory_service.Repository.InventoryRepository;
 import com.democode.inventory_service.dto.InventoryResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class InventoryService {
 
 
@@ -21,7 +23,7 @@ public class InventoryService {
 
     @Transactional(readOnly = true)
     public List<InventoryResponse> isInStock(List<String> skuCode) {
-
+        log.info("Checking inventory for skuCodes: {}", skuCode);
         return inventoryRepository.findBySkuCodeIn(skuCode).stream()
                 .map(inventory ->
                         InventoryResponse.builder()
@@ -29,6 +31,7 @@ public class InventoryService {
                                 .isInStock(inventory.getQuantity() > 0)
                                 .build()
                 ).toList();
+
     }
 
 }
