@@ -3,6 +3,7 @@ package com.democode.inventory_service.service;
 import com.democode.inventory_service.Repository.InventoryRepository;
 import com.democode.inventory_service.dto.InventoryResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,11 @@ public class InventoryService {
 
 
     @Transactional(readOnly = true)
+    @SneakyThrows
     public List<InventoryResponse> isInStock(List<String> skuCode) {
+        log.info("waiting started");
+        Thread.sleep(10000);
+        log.info("wait ended");
         log.info("Checking inventory for skuCodes: {}", skuCode);
         return inventoryRepository.findBySkuCodeIn(skuCode).stream()
                 .map(inventory ->
