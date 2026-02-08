@@ -3,12 +3,14 @@ package com.democode.order_service.service;
 import com.democode.order_service.dto.InventoryResponse;
 import com.democode.order_service.dto.OrderLineItemsDto;
 import com.democode.order_service.dto.OrderRequest;
+import com.democode.order_service.event.OrderPlacedEvent;
 import com.democode.order_service.model.Order;
 import com.democode.order_service.model.OrderLineItems;
 import com.democode.order_service.reopsitory.OrderRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -53,14 +55,16 @@ public class OrderService {
         boolean allProductInStock = Arrays.stream(inventoryResponsesArray)
                 .allMatch(InventoryResponse::isInStock);
 
-        if(allProductInStock){
-            orderRepository.save(order);
-            return "order request successfully";
-        }else {
-            throw new IllegalArgumentException("product is not in stock please try agian later");
-        }
+            if (allProductInStock) {
+                orderRepository.save(order);
+                // publish Order Placed Event
+                applicationEventPublisher.publishEvent(new OrderPlacedEvent(this, order.getOrderNumber()));
+                return "Order Placed";
+            } else {
+                throw new IllegalArgumentException("Product is not in stock, please try again later");
+            }
 
-
+        };
 
     }
 
